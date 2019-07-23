@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @Route("/blog")
@@ -27,11 +28,29 @@ class BlogController extends AbstractController
     ];
 
     /**
-     * @Route("/", name="blog_list")
+     * @Route("/{page}", name="blog_list", defaults={"page": 5})
      */
-    public function list()
+    public function list($page = 1, Request $request)
     {
-        return $this->json(self::POSTS);
+        $limit = $request->get('limit', 10);
+
+        return $this->json(
+            [
+                'page' => $page,
+                'limit' => $limit,
+                'date' => array_map(
+                    function ($item) {
+                        return $this->generateUrl(
+                            "blog_by_id",
+                            [
+                                'id' => $item['id']
+                            ]
+                        );
+                    },
+                    self::POSTS
+                )
+            ]
+        );
     }
 
     /**
