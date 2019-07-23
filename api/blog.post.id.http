@@ -1,0 +1,10 @@
+POST http://127.0.0.1:8000/blog/post/1 HTTP/1.1
+content-type: application/json
+
+# {
+#     "title": "A new blog post!",
+#     "published": "2018-07-05 12:00:00",
+#     "content": "Hello there!",
+#     "author": "Piotr Juraaa",
+#     "slug": "a-another-blog-post"
+# }
