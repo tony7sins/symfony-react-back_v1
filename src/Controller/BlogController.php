@@ -6,6 +6,7 @@ use App\Entity\BlogPost;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Serializer\SerializerInterface;
 
 /**
  * @Route("/blog")
@@ -67,13 +68,17 @@ class BlogController extends AbstractController
     /**
      * @Route("/add", name="blog_add", methods={"POST"})
      */
-    public function add(Request $request)
-    {
+    public function add(
+        Request $request,
+        SerializerInterface $serializer
+    ) {
 
         // /** @var Serializer $serializer */
-        $serializer = $this->get('serializer');
+        // $serializer = $this->get('serializer');
 
         $blogPost = $serializer->deserialize($request->getContent(), BlogPost::class, 'json');
+
+        // $blogPost = $serializer->deserialize($request->getContent(), BlogPost::class, 'json');
 
         $em = $this->getDoctrine()->getManager();
         $em->persist($blogPost);
