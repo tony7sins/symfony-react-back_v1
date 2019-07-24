@@ -1,0 +1,10 @@
+POST http://127.0.0.1:8000/api/blog_posts HTTP/1.1
+content-type: application/json 
+
+{
+	"title": "From API platform II",
+	"content": "API platform test message",
+	"author": "Admin",
+	"published": "2018-08-03 12:00:00",
+	"slug": "api-test-II"
+}
