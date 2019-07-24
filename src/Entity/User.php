@@ -51,7 +51,7 @@ class User
      */
     private $comments;
 
-    public function __construct(BlogPost $posts, Command $comments)
+    public function __construct()
     {
         $this->posts = new ArrayCollection();
         $this->comments = new ArrayCollection();
