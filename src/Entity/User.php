@@ -3,16 +3,16 @@
 namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiResource;
-use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Console\Command\Command;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * @ApiResource()
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
  */
-class User
+class User implements UserInterface
 {
     /**
      * @ORM\Id()
@@ -125,4 +125,23 @@ class User
     {
         return $this->comments;
     }
+
+    public function getRoles()
+    {
+        return ['ROLE_USER'];
+    }
+
+    // public function getPassword()
+    // { }
+
+    public function getSalt()
+    {
+        return null;
+    }
+
+    // public function getUsername()
+    // { }
+
+    public function eraseCredentials()
+    { }
 }

@@ -2,47 +2,72 @@
 
 namespace App\DataFixtures;
 
-use Doctrine\Bundle\FixturesBundle\Fixture;
-use Doctrine\Common\Persistence\ObjectManager;
 use App\Entity\BlogPost;
 use App\Entity\User;
+use Doctrine\Bundle\FixturesBundle\Fixture;
+use Doctrine\Common\Persistence\ObjectManager;
+use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use App\Entity\Comment;
 
 class AppFixtures extends Fixture
 {
+    /** @var UserPasswordEncoderInterface $encoder */
+    private $encoder;
+
+    /** @var \Faker\Factory $faker */
+    private $faker;
+
+    public function __construct(UserPasswordEncoderInterface $encoder)
+    {
+        $this->encoder = $encoder;
+        $this->faker = \Faker\Factory::create();
+    }
+
     public function load(ObjectManager $manager)
     {
         $this->loadUsers($manager);
         $this->loadBlogPosts($manager);
+        $this->loadComments($manager);
     }
 
     public function loadBlogPosts(ObjectManager $manager)
     {
         $user = $this->getReference('user_admin');
 
-        $blogPost = new BlogPost();
-        $blogPost
-            ->setTitle('A first post!')
-            ->setPublished(new \DateTime('2018-07-25 12:00:00'))
-            ->setContent('Post content')
-            ->setAuthor($user)
-            ->setSlug('a-first-post');
-        $manager->persist($blogPost);
+        for ($i = 0; $i < 100; $i++) {
+            $blogPost = new BlogPost();
+            $blogPost
+                ->setTitle($this->faker->realText(30))
+                ->setPublished($this->faker->dateTimeThisYear)
+                ->setContent($this->faker->realText(240))
+                ->setAuthor($user)
+                ->setSlug($this->faker->slug);
+            $manager->persist($blogPost);
 
-        $blogPost = new BlogPost();
-        $blogPost
-            ->setTitle('A second post!')
-            ->setPublished(new \DateTime('2018-07-26 14:00:00'))
-            ->setContent('Post content second')
-            ->setAuthor($user)
-            ->setSlug('a-second-post');
-        $manager->persist($blogPost);
-
+            $this->setReference("blog_post_{$i}", $blogPost);
+        }
 
         $manager->flush();
     }
 
     public function loadComments(ObjectManager $manager)
-    { }
+    {
+        for ($i = 0; $i < 100; $i++) {
+            for ($j = 0; $j < rand(1, 10); $j++) {
+
+                $comment = new Comment;
+                $comment
+                    ->setContent($this->faker->realText(150))
+                    ->setPublished($this->faker->dateTimeThisYear)
+                    ->setAuthor($this->getReference('user_admin'))
+                    ->setBlogPost($this->getReference("blog_post_{$i}"));
+
+                $manager->persist($comment);
+            }
+        }
+
+        $manager->flush();
+    }
 
     public function loadUsers(ObjectManager $manager)
     {
@@ -53,7 +78,10 @@ class AppFixtures extends Fixture
             ->setName('Tony 7')
             ->setEmail('admin@admin.ru')
 
-            ->setPassword('secret123#');
+            ->setPassword($this->encoder->encodePassword(
+                $user,
+                'secret123#'
+            ));
 
         $this->addReference('user_admin', $user);
 
