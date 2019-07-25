@@ -7,6 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ApiResource(
+ *      attributes={"formats"={"jsonld"}},
  *      itemOperations={"get"},
  *      collectionOperations={"get"}
  * )
@@ -42,6 +43,11 @@ class Comment
      * @ORM\JoinColumn(nullable=false)
      */
     private $blogPost;
+
+    public function __toString()
+    {
+        return (string) $this->getId();
+    }
 
     public function getId(): ?int
     {

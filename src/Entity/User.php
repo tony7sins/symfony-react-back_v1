@@ -10,6 +10,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * @ApiResource(
+ *      attributes={"formats"={"jsonld"}},
  *      itemOperations={"get"},
  *      collectionOperations={}
  * )
@@ -58,6 +59,11 @@ class User implements UserInterface
     {
         $this->posts = new ArrayCollection();
         $this->comments = new ArrayCollection();
+    }
+
+    public function __toString()
+    {
+        return (string) $this->getId();
     }
 
     public function getId(): ?int

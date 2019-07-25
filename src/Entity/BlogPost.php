@@ -9,6 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ApiResource(
+ *      attributes={"formats"={"jsonld"}},
  *      itemOperations={"get"},
  *      collectionOperations={"get"}
  * )
@@ -57,6 +58,11 @@ class BlogPost
     public function __construct()
     {
         $this->comments = new ArrayCollection();
+    }
+
+    public function __toString()
+    {
+        return (string) $this->getId();
     }
 
     public function getId(): ?int
