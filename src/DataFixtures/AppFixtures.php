@@ -3,11 +3,11 @@
 namespace App\DataFixtures;
 
 use App\Entity\BlogPost;
+use App\Entity\Comment;
 use App\Entity\User;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\Persistence\ObjectManager;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
-use App\Entity\Comment;
 
 class AppFixtures extends Fixture
 {
@@ -39,12 +39,13 @@ class AppFixtures extends Fixture
             $blogPost
                 ->setTitle($this->faker->realText(30))
                 ->setPublished($this->faker->dateTimeThisYear)
-                ->setContent($this->faker->realText(240))
+                ->setContent($this->faker->realText)
                 ->setAuthor($user)
                 ->setSlug($this->faker->slug);
-            $manager->persist($blogPost);
 
             $this->setReference("blog_post_{$i}", $blogPost);
+
+            $manager->persist($blogPost);
         }
 
         $manager->flush();
@@ -57,7 +58,7 @@ class AppFixtures extends Fixture
 
                 $comment = new Comment;
                 $comment
-                    ->setContent($this->faker->realText(150))
+                    ->setContent($this->faker->realText())
                     ->setPublished($this->faker->dateTimeThisYear)
                     ->setAuthor($this->getReference('user_admin'))
                     ->setBlogPost($this->getReference("blog_post_{$i}"));
