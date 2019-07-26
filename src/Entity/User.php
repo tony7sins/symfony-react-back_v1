@@ -13,10 +13,14 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ApiResource(
- *      attributes={"formats"={"jsonld"}},
- *      itemOperations={"get"},
- *      collectionOperations={"post"},
- *      normalizationContext={
+ *     attributes={"formats"={"jsonld"}},
+ *     itemOperations={
+ *         "get"={
+ *             "access_control"="is_granted('IS_AUTHENTICATED_FULLY')"
+ *         }
+ *     },
+ *     collectionOperations={"post"},
+ *     normalizationContext={
  *          "groups"={"read"}
  *      }
  * )
