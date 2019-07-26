@@ -6,12 +6,18 @@ use ApiPlatform\Core\Annotation\ApiResource;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ApiResource(
  *      attributes={"formats"={"jsonld"}},
  *      itemOperations={"get"},
- *      collectionOperations={"get"}
+ *     collectionOperations={
+ *         "get",
+ *         "post"={
+ *             "access_control"="is_granted('IS_AUTHENTICATED_FULLY')"
+ *         }
+ *     }
  * )
  * @ORM\Entity(repositoryClass="App\Repository\BlogPostRepository")
  */
@@ -26,21 +32,27 @@ class BlogPost
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Assert\Length(min=10)
      */
     private $title;
 
     /**
      * @ORM\Column(type="datetime")
+     * @Assert\NotBlank()
+     * @Assert\DateTime()
      */
     private $published;
 
     /**
      * @ORM\Column(type="text")
+     * @Assert\NotBlank()
+     * @Assert\Length(min=20)
      */
     private $content;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
+     * @Assert\NotBlank()
      */
     private $slug;
 
