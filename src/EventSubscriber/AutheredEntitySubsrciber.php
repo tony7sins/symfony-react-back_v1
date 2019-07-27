@@ -10,6 +10,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use App\Entity\BlogPost;
 use Symfony\Component\HttpFoundation\Request;
+use App\Entity\Comment;
 
 class AutheredEntitySubsrciber implements EventSubscriberInterface
 {
@@ -36,7 +37,7 @@ class AutheredEntitySubsrciber implements EventSubscriberInterface
         /** @var UserInterface $author */
         $author = $this->tokenStorage->getToken()->getUser();
 
-        if (!$entity instanceof BlogPost || Request::METHOD_POST !== $method) {
+        if ((!$entity instanceof BlogPost && !$entity instanceof Comment) || Request::METHOD_POST !== $method) {
             return;
         }
 

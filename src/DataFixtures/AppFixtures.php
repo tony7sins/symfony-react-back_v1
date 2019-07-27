@@ -11,6 +11,33 @@ use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 class AppFixtures extends Fixture
 {
+    private const USERS = [
+        [
+            'username' => 'admin',
+            'email' => 'admin@blog.com',
+            'name' => 'Piotr Jura',
+            'password' => 'secret123#'
+        ],
+        [
+            'username' => 'john_doe',
+            'email' => 'john@blog.com',
+            'name' => 'John Doe',
+            'password' => 'secret123#'
+        ],
+        [
+            'username' => 'rob_smith',
+            'email' => 'rob@blog.com',
+            'name' => 'Rob Smith',
+            'password' => 'secret123#'
+        ],
+        [
+            'username' => 'jenny_rowling',
+            'email' => 'jenny@blog.com',
+            'name' => 'Jenny Rowling',
+            'password' => 'secret123#'
+        ]
+    ];
+
     /** @var UserPasswordEncoderInterface $encoder */
     private $encoder;
 
@@ -30,17 +57,36 @@ class AppFixtures extends Fixture
         $this->loadComments($manager);
     }
 
+    public function loadUsers(ObjectManager $manager)
+    {
+        foreach (self::USERS as $userFixture) {
+            $user = new User();
+            $user
+                ->setUsername($userFixture['username'])
+                ->setName($userFixture['name'])
+                ->setEmail($userFixture['email'])
+
+                ->setPassword($this->encoder->encodePassword(
+                    $user,
+                    $userFixture['password']
+                ));
+
+            $this->addReference('user_' . $userFixture['username'], $user);
+
+            $manager->persist($user);
+        }
+        $manager->flush();
+    }
+
     public function loadBlogPosts(ObjectManager $manager)
     {
-        $user = $this->getReference('user_admin');
-
         for ($i = 0; $i < 100; $i++) {
             $blogPost = new BlogPost();
             $blogPost
                 ->setTitle($this->faker->realText(30))
                 ->setPublished($this->faker->dateTimeThisYear)
                 ->setContent($this->faker->realText)
-                ->setAuthor($user)
+                ->setAuthor($this->getRundomUserReference())
                 ->setSlug($this->faker->slug);
 
             $this->setReference("blog_post_{$i}", $blogPost);
@@ -55,12 +101,11 @@ class AppFixtures extends Fixture
     {
         for ($i = 0; $i < 100; $i++) {
             for ($j = 0; $j < rand(1, 10); $j++) {
-
                 $comment = new Comment;
                 $comment
                     ->setContent($this->faker->realText())
                     ->setPublished($this->faker->dateTimeThisYear)
-                    ->setAuthor($this->getReference('user_admin'))
+                    ->setAuthor($this->getRundomUserReference())
                     ->setBlogPost($this->getReference("blog_post_{$i}"));
 
                 $manager->persist($comment);
@@ -70,23 +115,10 @@ class AppFixtures extends Fixture
         $manager->flush();
     }
 
-    public function loadUsers(ObjectManager $manager)
+    private function getRundomUserReference(): User
     {
-        $user = new User();
-
-        $user
-            ->setUsername('admin')
-            ->setName('Tony 7')
-            ->setEmail('admin@admin.ru')
-
-            ->setPassword($this->encoder->encodePassword(
-                $user,
-                'secret123#'
-            ));
-
-        $this->addReference('user_admin', $user);
-
-        $manager->persist($user);
-        $manager->flush();
+        return $this->getReference(
+            "user_" . self::USERS[rand(0, 3)]['username']
+        );
     }
 }
