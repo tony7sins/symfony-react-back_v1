@@ -13,40 +13,37 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ApiResource(
- *     normalizationContext={"groups"={"get"}},
- *     attributes={"formats"={"jsonld"}},
  *     itemOperations={
  *         "get"={
  *             "access_control"="is_granted('IS_AUTHENTICATED_FULLY')",
- *              "normalization_context"={
- *                   "groups"={"get"}
- *              }
+ *             "normalization_context"={
+ *                 "groups"={"get"}
+ *             }
  *         },
  *         "put"={
  *             "access_control"="is_granted('IS_AUTHENTICATED_FULLY') and object == user",
- *              "denormalization_context"={
- *                   "groups"={"put"}
- *              },
- *              "normalization_context"={
- *                  "groups"={"get"}
- *              }
+ *             "denormalization_context"={
+ *                 "groups"={"put"}
+ *             },
+ *             "normalization_context"={
+ *                 "groups"={"get"}
+ *             }
  *         }
  *     },
  *     collectionOperations={
  *         "post"={
- *              "denormalization_context"={
- *                   "groups"={"post"}
- *              },
- *              "normalization_context"={
- *                  "groups"={"get"}
- *              }
- *          }
- *     }
+ *             "denormalization_context"={
+ *                 "groups"={"post"}
+ *             },
+ *             "normalization_context"={
+ *                 "groups"={"get"}
+ *             }
+ *         }
+ *     },
  * )
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
  * @UniqueEntity("username")
  * @UniqueEntity("email")
- * 
  */
 class User implements UserInterface
 {
@@ -68,21 +65,21 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"post", "put"})
+     * @Groups({"put", "post"})
      * @Assert\NotBlank()
      * @Assert\Regex(
-     *      pattern="/(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z]).{7,}/",
-     *      message="Password must be 7 characters long at liast"
+     *     pattern="/(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9]).{7,}/",
+     *     message="Password must be seven characters long and contain at least one digit, one upper case letter and one lower case letter"
      * )
      */
     private $password;
 
     /**
-     * Check the password value
-     * @Groups({"post", "put"})
+     * @Groups({"put", "post"})
+     * @Assert\NotBlank()
      * @Assert\Expression(
-     *      "this.getPassword() === this.getRetypedPassword()",
-     *      message="Passwords does not matches"
+     *     "this.getPassword() === this.getRetypedPassword()",
+     *     message="Passwords does not match"
      * )
      */
     private $retypedPassword;
@@ -100,7 +97,7 @@ class User implements UserInterface
      * @Groups({"post", "put"})
      * @Assert\NotBlank()
      * @Assert\Email()
-     * @Assert\Length(min=5, max=255)
+     * @Assert\Length(min=6, max=255)
      */
     private $email;
 
@@ -127,7 +124,7 @@ class User implements UserInterface
         return (string) $this->getId();
     }
 
-    public function getId(): ?int
+    public function getId()
     {
         return $this->id;
     }
@@ -183,7 +180,7 @@ class User implements UserInterface
     /**
      * @return Collection
      */
-    public function getPosts(): ?Collection
+    public function getPosts(): Collection
     {
         return $this->posts;
     }
@@ -191,7 +188,7 @@ class User implements UserInterface
     /**
      * @return Collection
      */
-    public function getComments(): ?Collection
+    public function getComments(): Collection
     {
         return $this->comments;
     }
@@ -201,16 +198,10 @@ class User implements UserInterface
         return ['ROLE_USER'];
     }
 
-    // public function getPassword()
-    // { }
-
     public function getSalt()
     {
         return null;
     }
-
-    // public function getUsername()
-    // { }
 
     public function eraseCredentials()
     { }
@@ -220,10 +211,8 @@ class User implements UserInterface
         return $this->retypedPassword;
     }
 
-    public function setRetypedPassword($retypedPassword): self
+    public function setRetypedPassword($retypedPassword): void
     {
         $this->retypedPassword = $retypedPassword;
-
-        return $this;
     }
 }

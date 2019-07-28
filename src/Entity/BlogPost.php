@@ -6,28 +6,31 @@ use ApiPlatform\Core\Annotation\ApiResource;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
+ * @ORM\Entity(repositoryClass="App\Repository\BlogPostRepository")
  * @ApiResource(
- *      attributes={"formats"={"jsonld"}},
  *     itemOperations={
  *         "get",
  *         "put"={
  *             "access_control"="is_granted('IS_AUTHENTICATED_FULLY') and object.getAuthor() == user"
  *         }
  *     },
-
  *     collectionOperations={
  *         "get",
  *         "post"={
  *             "access_control"="is_granted('IS_AUTHENTICATED_FULLY')"
  *         }
+ *     },
+ *     denormalizationContext={
+ *         "groups"={"post"}
  *     }
  * )
- * @ORM\Entity(repositoryClass="App\Repository\BlogPostRepository")
  */
-class BlogPost
+class BlogPost implements AuthoredEntityInterface, PublishedDateEntityInterface
 {
     /**
      * @ORM\Id()
@@ -38,14 +41,14 @@ class BlogPost
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Assert\NotBlank()
      * @Assert\Length(min=10)
+     * @Groups({"post"})
      */
     private $title;
 
     /**
      * @ORM\Column(type="datetime")
-     * @Assert\NotBlank()
-     * @Assert\DateTime()
      */
     private $published;
 
@@ -53,20 +56,22 @@ class BlogPost
      * @ORM\Column(type="text")
      * @Assert\NotBlank()
      * @Assert\Length(min=20)
+     * @Groups({"post"})
      */
     private $content;
-
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     * @Assert\NotBlank()
-     */
-    private $slug;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="posts")
      * @ORM\JoinColumn(nullable=false)
      */
     private $author;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     * @Assert\NotBlank()
+     * @Groups({"post"})
+     */
+    private $slug;
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Comment", mappedBy="blogPost")
@@ -77,13 +82,17 @@ class BlogPost
     {
         $this->comments = new ArrayCollection();
     }
-
     public function __toString()
     {
         return (string) $this->getId();
     }
 
-    public function getId(): ?int
+    public function getComments(): Collection
+    {
+        return $this->comments;
+    }
+
+    public function getId()
     {
         return $this->id;
     }
@@ -105,7 +114,7 @@ class BlogPost
         return $this->published;
     }
 
-    public function setPublished(\DateTimeInterface $published): self
+    public function setPublished(\DateTimeInterface $published): PublishedDateEntityInterface
     {
         $this->published = $published;
 
@@ -129,15 +138,13 @@ class BlogPost
         return $this->slug;
     }
 
-    public function setSlug(?string $slug): self
+    public function setSlug($slug): void
     {
         $this->slug = $slug;
-
-        return $this;
     }
 
     /**
-     * Get the value of author
+     * @return User
      */
     public function getAuthor(): User
     {
@@ -145,19 +152,12 @@ class BlogPost
     }
 
     /**
-     * Set the value of author
-     *
-     * @return  self
+     * @param UserInterface $author
      */
-    public function setAuthor(User $author): self
+    public function setAuthor(UserInterface $author): AuthoredEntityInterface
     {
         $this->author = $author;
 
         return $this;
-    }
-
-    public function getComments(): Collection
-    {
-        return $this->comments;
     }
 }
