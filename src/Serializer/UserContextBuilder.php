@@ -3,9 +3,9 @@
 namespace App\Serializer;
 
 use ApiPlatform\Core\Serializer\SerializerContextBuilderInterface;
+use App\Entity\User;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
-use App\Entity\User;
 
 class UserContextBuilder implements SerializerContextBuilderInterface
 {
@@ -23,6 +23,7 @@ class UserContextBuilder implements SerializerContextBuilderInterface
         SerializerContextBuilderInterface $decorator,
         AuthorizationCheckerInterface $authorizationChecker
     ) {
+
         $this->decorator = $decorator;
         $this->authorizationChecker = $authorizationChecker;
     }
@@ -32,6 +33,7 @@ class UserContextBuilder implements SerializerContextBuilderInterface
         bool $normalization,
         array $extractedAttributes = null
     ): array {
+
         $context = $this->decorator->createFromRequest(
             $request,
             $normalization,

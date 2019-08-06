@@ -31,6 +31,7 @@ implements ContextAwareNormalizerInterface, SerializerAwareInterface
         $format = null,
         array $context = []
     ) {
+
         if (isset($context[self::USER_ATTRIBUTE_NORMALIZER_ALREADY_CALLED])) {
             return false;
         }
@@ -40,6 +41,7 @@ implements ContextAwareNormalizerInterface, SerializerAwareInterface
 
     public function normalize($object, $format = null, array $context = [])
     {
+
         if ($this->isUserHimself($object)) {
             $context['groups'][] = 'get-owner';
         }
@@ -55,6 +57,7 @@ implements ContextAwareNormalizerInterface, SerializerAwareInterface
 
     private function passOn($object, $format, $context)
     {
+
         if (!$this->serializer instanceof NormalizerInterface) {
             throw new \LogicException(
                 sprintf(
