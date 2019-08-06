@@ -60,6 +60,9 @@ class ResetPasswordAction
             )
         );
 
+        // after password has been ghanged, old password are still valid
+        $data->setPasswordChangeDate(time());
+
         $this->entityManager->flush();
 
         $token = $this->tokenManager->create($data);
