@@ -8,6 +8,7 @@ use App\Entity\User;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\Persistence\ObjectManager;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use App\Security\TokenGenerator;
 
 class AppFixtures extends Fixture
 {
@@ -18,6 +19,7 @@ class AppFixtures extends Fixture
             'name'      => 'Piotr Jura',
             'password'  => 'secret123#',
             'roles'     => [User::ROLE_SUPERADMIN],
+            'enabled'   => true,
         ],
         [
             'username'  => 'john_doe',
@@ -25,6 +27,7 @@ class AppFixtures extends Fixture
             'name'      => 'John Doe',
             'password'  => 'secret123#',
             'roles'     => [User::ROLE_ADMIN],
+            'enabled'   => true,
         ],
         [
             'username'  => 'rob_smith',
@@ -32,6 +35,7 @@ class AppFixtures extends Fixture
             'name'      => 'Rob Smith',
             'password'  => 'secret123#',
             'roles'     => [User::ROLE_WRITER],
+            'enabled'   => true,
         ],
         [
             'username'  => 'jenny_rowling',
@@ -39,6 +43,7 @@ class AppFixtures extends Fixture
             'name'      => 'Jenny Rowling',
             'password'  => 'secret123#',
             'roles'     => [User::ROLE_WRITER],
+            'enabled'   => true,
         ],
 
         [
@@ -47,6 +52,7 @@ class AppFixtures extends Fixture
             'name'      => 'Han Solo',
             'password'  => 'secret123#',
             'roles'     => [User::ROLE_EDITOR],
+            'enabled'   => false,
         ],
         [
             'username'  => 'jedi_knight',
@@ -54,6 +60,7 @@ class AppFixtures extends Fixture
             'name'      => 'J edi Knight',
             'password'  => 'secret123#',
             'roles'     => [User::ROLE_COMMENTATOR],
+            'enabled'   => true,
         ]
     ];
 
@@ -63,14 +70,22 @@ class AppFixtures extends Fixture
     /** @var \Faker\Factory $faker */
     private $faker;
 
-    public function __construct(UserPasswordEncoderInterface $encoder)
-    {
-        $this->encoder = $encoder;
-        $this->faker = \Faker\Factory::create();
+    /** @var TokenGenerator $tokenGenerator */
+    private $tokenGenerator;
+
+    public function __construct(
+        UserPasswordEncoderInterface $encoder,
+        TokenGenerator $tokenGenerator
+    ) {
+
+        $this->encoder          = $encoder;
+        $this->faker            = \Faker\Factory::create();
+        $this->tokenGenerator   = $tokenGenerator;
     }
 
     public function load(ObjectManager $manager)
     {
+
         $this->loadUsers($manager);
         $this->loadBlogPosts($manager);
         $this->loadComments($manager);
@@ -78,7 +93,9 @@ class AppFixtures extends Fixture
 
     public function loadUsers(ObjectManager $manager)
     {
+
         foreach (self::USERS as $userFixture) {
+
             $user = new User();
             $user
                 ->setUsername($userFixture['username'])
@@ -90,7 +107,14 @@ class AppFixtures extends Fixture
                     $userFixture['password']
                 ))
                 ->setRoles($userFixture['roles'])
-                ->setEnabled(true);
+                ->setEnabled($userFixture['enabled']);
+
+            if (!$userFixture['enabled']) {
+
+                $user->setConfirmationToken(
+                    $this->tokenGenerator->getRundomToken()
+                );
+            }
 
             $this->addReference('user_' . $userFixture['username'], $user);
 
@@ -101,6 +125,7 @@ class AppFixtures extends Fixture
 
     public function loadBlogPosts(ObjectManager $manager)
     {
+
         for ($i = 0; $i < 100; $i++) {
             $blogPost = new BlogPost();
             $blogPost
@@ -120,6 +145,7 @@ class AppFixtures extends Fixture
 
     public function loadComments(ObjectManager $manager)
     {
+
         for ($i = 0; $i < 100; $i++) {
             for ($j = 0; $j < rand(1, 10); $j++) {
                 $comment = new Comment;
@@ -138,6 +164,7 @@ class AppFixtures extends Fixture
 
     private function getRundomUserReference($entity): User
     {
+
         $randomUser = self::USERS[rand(0, 5)];
 
         if ($entity instanceof BlogPost && !count(array_intersect(
