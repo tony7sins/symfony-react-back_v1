@@ -112,7 +112,7 @@ class AppFixtures extends Fixture
             if (!$userFixture['enabled']) {
 
                 $user->setConfirmationToken(
-                    $this->tokenGenerator->getRundomToken()
+                    $this->tokenGenerator->getRundomSecureToken()
                 );
             }
 
