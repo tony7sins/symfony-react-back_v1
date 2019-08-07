@@ -9,8 +9,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\GetResponseForControllerResultEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
-use Symfony\Component\Security\Core\User\UserInterface;
 use App\Security\TokenGenerator;
+use Symfony\Component\HttpKernel\Event\ViewEvent;
 
 class UserRegisterSubscriber implements EventSubscriberInterface
 {
@@ -41,7 +41,7 @@ class UserRegisterSubscriber implements EventSubscriberInterface
      * @param GetResponseForControllerResultEvent $event - type of event for KernelEvents::VIEW event
      * @return boolean
      */
-    public function userRegistered(GetResponseForControllerResultEvent $event)
+    public function userRegistered(ViewEvent $event)
     {
 
         /** @var User $user */
