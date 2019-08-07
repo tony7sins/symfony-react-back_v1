@@ -69,5 +69,7 @@ class UserConfirmationSubscriber implements EventSubscriberInterface
             null,
             Response::HTTP_OK
         ));
+
+        // Send an Email to registered user
     }
 }
