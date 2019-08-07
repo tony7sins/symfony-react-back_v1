@@ -13,6 +13,7 @@ use Symfony\Component\HttpKernel\Event\ViewEvent;
 // use Symfony\Component\HttpKernel\Event\GetResponseForControllerResultEvent;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
+use Swift_Message;
 
 class UserConfirmationSubscriber implements EventSubscriberInterface
 {
@@ -21,14 +22,18 @@ class UserConfirmationSubscriber implements EventSubscriberInterface
 
     /** @var EntityManagerInterface */
     private $em;
+    /** @var \Swift_Mailer $mailer */
+    private $mailer;
 
     public function __construct(
         UserRepository $userRepository,
-        EntityManagerInterface $em
+        EntityManagerInterface $em,
+        \Swift_Mailer $mailer
     ) {
 
         $this->userRepository   = $userRepository;
         $this->em               = $em;
+        $this->mailer           = $mailer;
     }
     public static function getSubscribedEvents()
     {
@@ -71,5 +76,11 @@ class UserConfirmationSubscriber implements EventSubscriberInterface
         ));
 
         // Send an Email to registered user
+        $message = (new Swift_Message('hello from API Platform'))
+            ->setFrom('test@gmail.com')
+            ->setTo('test@mail.com')
+            ->setBody("Hello from API Platform");
+
+        $this->mailer->send($message);
     }
 }
