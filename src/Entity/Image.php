@@ -5,6 +5,7 @@ namespace App\Entity;
 use ApiPlatform\Core\Annotation\ApiResource;
 use Doctrine\ORM\Mapping as ORM;
 use Vich\UploaderBundle\Mapping\Annotation as Vich;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity()
@@ -37,6 +38,7 @@ class Image
 
     /**
      * @ORM\Column(nullable=true)
+     * @Assert\NotNull()
      */
     private $url;
 
