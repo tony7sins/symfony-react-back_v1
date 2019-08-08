@@ -3,68 +3,71 @@
 namespace App\EventSubscriber;
 
 use ApiPlatform\Core\EventListener\EventPriorities;
+use App\Email\Mailer;
 use App\Entity\User;
+use App\Security\TokenGenerator;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\GetResponseForControllerResultEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
-use App\Security\TokenGenerator;
-use Symfony\Component\HttpKernel\Event\ViewEvent;
 
 class UserRegisterSubscriber implements EventSubscriberInterface
 {
-    /** @var UserPasswordEncoderInterface $passwordEncoder */
+    /**
+     * @var UserPasswordEncoderInterface
+     */
     private $passwordEncoder;
-
-    /** @var TokenGenerator $tokenGenerator */
+    /**
+     * @var TokenGenerator
+     */
     private $tokenGenerator;
+    /**
+     * @var Mailer
+     */
+    private $mailer;
 
     public function __construct(
         UserPasswordEncoderInterface $passwordEncoder,
-        TokenGenerator $tokenGenerator
+        TokenGenerator $tokenGenerator,
+        Mailer $mailer
     ) {
-        $this->passwordEncoder  = $passwordEncoder;
-        $this->tokenGenerator   = $tokenGenerator;
+        $this->passwordEncoder = $passwordEncoder;
+        $this->tokenGenerator = $tokenGenerator;
+        $this->mailer = $mailer;
     }
+
     public static function getSubscribedEvents()
     {
-
         return [
-            KernelEvents::VIEW => ['userRegistered', EventPriorities::PRE_WRITE]
+            KernelEvents::VIEW => ['userRegistered', EventPriorities::PRE_WRITE],
         ];
     }
 
-    /**
-     * Undocumented function
-     *
-     * @param GetResponseForControllerResultEvent $event - type of event for KernelEvents::VIEW event
-     * @return boolean
-     */
-    public function userRegistered(ViewEvent $event)
+    public function userRegistered(GetResponseForControllerResultEvent $event)
     {
-
-        /** @var User $user */
         $user = $event->getControllerResult();
+        $method = $event->getRequest()
+            ->getMethod();
 
-        $method = $event->getRequest()->getMethod();
-
-        if (!$user instanceof User || !in_array($method, [Request::METHOD_POST])) {
+        if (
+            !$user instanceof User ||
+            !in_array($method, [Request::METHOD_POST])
+        ) {
             return;
         }
 
-        // So we're hashing password
+        // It is an User, we need to hash password here
         $user->setPassword(
-            $this->passwordEncoder->encodePassword(
-                $user,
-                /** @var string - plain [assword from request */
-                $user->getPassword()
-            )
+            $this->passwordEncoder->encodePassword($user, $user->getPassword())
         );
 
-        // create a user confirmation token
+        // Create confirmation token
         $user->setConfirmationToken(
-            $this->tokenGenerator->getRundomSecureToken()
+            $this->tokenGenerator->getRandomSecureToken()
         );
+
+        // Send e-mail here...
+        $this->mailer->sendConfirmationEmail($user);
     }
 }

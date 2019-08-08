@@ -4,83 +4,54 @@ namespace App\EventSubscriber;
 
 use ApiPlatform\Core\EventListener\EventPriorities;
 use App\Entity\UserConfirmation;
-use App\Repository\UserRepository;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Security\UserConfirmationService;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Event\ViewEvent;
-// use Symfony\Component\HttpKernel\Event\GetResponseForControllerResultEvent;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\HttpKernel\Event\GetResponseForControllerResultEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
-use Swift_Message;
 
 class UserConfirmationSubscriber implements EventSubscriberInterface
 {
-    /** @var UserRepository */
-    private $userRepository;
-
-    /** @var EntityManagerInterface */
-    private $em;
-    /** @var \Swift_Mailer $mailer */
-    private $mailer;
+    /**
+     * @var UserConfirmationService
+     */
+    private $userConfirmationService;
 
     public function __construct(
-        UserRepository $userRepository,
-        EntityManagerInterface $em,
-        \Swift_Mailer $mailer
+        UserConfirmationService $userConfirmationService
     ) {
-
-        $this->userRepository   = $userRepository;
-        $this->em               = $em;
-        $this->mailer           = $mailer;
+        $this->userConfirmationService = $userConfirmationService;
     }
+
     public static function getSubscribedEvents()
     {
         return [
             KernelEvents::VIEW => [
-                'userConfirm',
-                EventPriorities::POST_VALIDATE
+                'confirmUser',
+                EventPriorities::POST_VALIDATE,
             ],
         ];
     }
 
-    public function userConfirm(ViewEvent $event)
+    public function confirmUser(GetResponseForControllerResultEvent $event)
     {
-
         $request = $event->getRequest();
 
-        if ('api_user_confirmations_post_collection' !== $request->get('_route')) {
+        if (
+            'api_user_confirmations_post_collection' !==
+            $request->get('_route')
+        ) {
             return;
         }
 
         /** @var UserConfirmation $confirmationToken */
-        $confirmationToken = $event->getControllerResulT();
+        $confirmationToken = $event->getControllerResult();
 
-        $user = $this->userRepository->findOneBy(
-            ['confirmationToken' => $confirmationToken->confirmationToken]
+        $this->userConfirmationService->confirmUser(
+            $confirmationToken->confirmationToken
         );
 
-        // User was found by confirmation token
-        if (!$user) {
-            throw new NotFoundHttpException();
-        }
-
-        $user->setEnabled(true);
-        $user->setConfirmationToken(null);
-        $this->em->flush();
-
-        $event->setResponse(new JsonResponse(
-            null,
-            Response::HTTP_OK
-        ));
-
-        // Send an Email to registered user
-        $message = (new Swift_Message('hello from API Platform'))
-            ->setFrom('test@gmail.com')
-            ->setTo('test@mail.com')
-            ->setBody("Hello from API Platform");
-
-        $this->mailer->send($message);
+        $event->setResponse(new JsonResponse(null, Response::HTTP_OK));
     }
 }
