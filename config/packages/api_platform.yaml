@@ -10,12 +10,18 @@ api_platform:
         pagination:
             # enabled: false
             page_parameter_name: '_page'
+
             client_enabled: true
             enabled_parameter_name: pagination
             items_per_page: 2 # 30 Default value
             client_items_per_page: true # Disabled by default
             items_per_page_parameter_name: itemsPerPage # Default value
-            maximum_items_per_page: 20
+            
+            maximum_items_per_page: 50
+
+            # partial: true # Disabled by default
+            client_partial: true # Disabled by default
+            partial_parameter_name: 'partial' # Default value
 
     
     formats:
