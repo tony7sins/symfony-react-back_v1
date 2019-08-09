@@ -193,6 +193,12 @@ class User implements UserInterface
         $this->confirmationToken    = null;
     }
 
+    public function __toString(): string
+    {
+        // return (string) $this->getId();
+        return $this->name;
+    }
+
     public function getId()
     {
         return $this->id;
