@@ -5,6 +5,9 @@ api_platform:
     eager_loading:
         enabled: true
     
+    # collection:
+    #     order_parameter_name: '_order'
+    
     formats:
         jsonld:   ['application/ld+json']
         jsonhal:  ['application/hal+json']
