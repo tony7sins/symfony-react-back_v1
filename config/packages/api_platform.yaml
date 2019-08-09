@@ -5,8 +5,15 @@ api_platform:
     eager_loading:
         enabled: true
     
-    # collection:
+    collection:
     #     order_parameter_name: '_order'
+        pagination:
+            # enabled: false
+            page_parameter_name: '_page'
+            client_enabled: true
+            enabled_parameter_name: pagination
+            items_per_page: 2 # 30 Default value
+
     
     formats:
         jsonld:   ['application/ld+json']
