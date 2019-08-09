@@ -24,7 +24,8 @@ use Symfony\Component\Validator\Constraints as Assert;
  *          "id":"exact",
  *          "title": "ipartial",
  *          "content": "partial",
- *          "author": "exact"
+ *          "author": "exact",
+ *          "author.name": "partial"
  *      }
  * )
  * @ApiFilter(
