@@ -67,7 +67,10 @@ use Symfony\Component\Validator\Constraints as Assert;
  *      }
  * )
  * @ApiResource(
- *     itemOperations={
+ *      attributes={
+ *          "maximum_items_per_page"=10
+ *      },
+ *      itemOperations={
  *         "get"={
  *             "normalization_context"={
  *                 "groups"={"get-blog-post-with-author"}
