@@ -7,6 +7,7 @@ use ApiPlatform\Core\Annotation\ApiResource;
 use ApiPlatform\Core\Annotation\ApiSubresource;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\DateFilter;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\RangeFilter;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -29,6 +30,12 @@ use Symfony\Component\Validator\Constraints as Assert;
  *      DateFilter::class,
  *      properties={
  *          "published"
+ *      }
+ * )
+ * @ApiFilter(
+ *      RangeFilter::class,
+ *      properties={
+ *          "id"
  *      }
  * )
  * @ApiResource(
