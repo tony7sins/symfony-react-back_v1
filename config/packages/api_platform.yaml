@@ -1,4 +1,5 @@
 api_platform:
+
     mapping:
         paths: ['%kernel.project_dir%/src/Entity']
         
@@ -23,7 +24,6 @@ api_platform:
             client_partial: true # Disabled by default
             partial_parameter_name: 'partial' # Default value
 
-    
     formats:
         jsonld:   ['application/ld+json']
         jsonhal:  ['application/hal+json']
@@ -33,3 +33,13 @@ api_platform:
         # yaml:     ['application/x-yaml']
         # csv:      ['text/csv']
         # html:     ['text/html']
+
+    exception_to_status:
+        App\Exception\EmptyBodyException: 'HTTP_BAD_REQUEST'
+        App\Exception\InvalidConfirmationTokenException: 404 
+
+        # Symfony\Component\Serializer\Exception\ExceptionInterface: 400 # Use a raw status code (recommended)
+        # ApiPlatform\Core\Exception\InvalidArgumentException: 'HTTP_BAD_REQUEST' # Or a `Symfony\Component\HttpFoundation\Response`'s constant
+        # ApiPlatform\Core\Exception\FilterValidationException: 400
+        # Doctrine\ORM\OptimisticLockException: 409
+        

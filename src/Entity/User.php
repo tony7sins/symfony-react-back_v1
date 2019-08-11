@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiResource;
@@ -11,6 +13,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\Validator\Constraints\UserPassword;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Constraints\Unique;
 use App\Controller\ResetPasswordAction;
 
 /**
@@ -21,41 +24,54 @@ use App\Controller\ResetPasswordAction;
  *             "normalization_context"={
  *                 "groups"={"get"}
  *             }
- *         },
- *         "put"={
- *             "access_control"="is_granted('IS_AUTHENTICATED_FULLY') and object == user",
- *             "denormalization_context"={
- *                 "groups"={"put"}
- *             },
- *             "normalization_context"={
- *                 "groups"={"get"}
- *             }
- *         },
- *         "put-reset-password"={
- *             "access_control"="is_granted('IS_AUTHENTICATED_FULLY') and object == user",
- *             "method"="PUT",
- *             "path"="/users/{id}/reset-password",
- *             "controller"=ResetPasswordAction::class,
- *             "denormalization_context"={
- *                 "groups"={"put-reset-password"}
- *             }
- *         }
- *     },
- *     collectionOperations={
- *         "post"={
- *             "denormalization_context"={
- *                 "groups"={"post"}
- *             },
- *             "normalization_context"={
- *                 "groups"={"get"}
- *             }
+ *          },
+ *          "put"={
+ *              "access_control"="is_granted('IS_AUTHENTICATED_FULLY') and object == user",
+ *              "denormalization_context"={
+ *                  "groups"={"put"}
+ *              },
+ *              "normalization_context"={
+ *                  "groups"={"get"}
+ *              }
+ *          },
+ *          "put-reset-password"={
+ *              "access_control"="is_granted('IS_AUTHENTICATED_FULLY') and object == user",
+ *              "method"="PUT",
+ *              "path"="/users/{id}/reset-password",
+ *              "controller"=ResetPasswordAction::class,
+ *              "denormalization_context"={
+ *                  "groups"={"put-reset-password"}
+ *              }
+ *          },
+ *          "validation_groups"={"put-reset-password"}
+ *      },
+ *      collectionOperations={
+ *          "post"={
+ *              "denormalization_context"={
+ *                  "groups"={"post"}
+ *              },
+ *              "normalization_context"={
+ *                  "groups"={"get"}
+ *              },
+ *              "validation_groups"={
+ *                  "post"
+ *              }
  *         }
  *     },
  * )
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
- * @UniqueEntity("username")
- * @UniqueEntity("email")
+ * @UniqueEntity(
+ *      fields={"username"}, 
+ *      groups={"post"}, 
+ *      message="The {{ value }} is repiated."
+ * )
+ * @UniqueEntity(
+ *      fields={"email"}, 
+ *      groups={"post"}, 
+ *      message="The {{ value }} is already using."
+ * )
  */
+
 class User implements UserInterface
 {
     const ROLE_COMMENTATOR = 'ROLE_COMMENTATOR';
@@ -75,15 +91,31 @@ class User implements UserInterface
     private $id;
 
     /**
-     * @ORM\Column(type="string", length=255)
-     * @Groups({"get", "post", "get-comment-with-author", "get-blog-post-with-author"})
+     * @ORM\Column(
+     *      type="string", 
+     *      length=255, 
+     *      unique=true
+     * )
+     * @Groups({
+     *      "get", 
+     *      "post", 
+     *      "get-comment-with-author", 
+     *      "get-blog-post-with-author"
+     * })
      * @Assert\NotBlank(groups={"post"})
-     * @Assert\Length(min=6, max=255, groups={"post"})
+     * @Assert\Length(
+     *      min=6, 
+     *      max=255, 
+     *      groups={"post"}
+     * )
      */
     private $username;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(
+     *      type="string", 
+     *      length=255
+     * )
      * @Groups({"post"})
      * @Assert\NotBlank(groups={"post"})
      * @Assert\Regex(
@@ -109,7 +141,7 @@ class User implements UserInterface
      * @Groups({"put-reset-password"})
      * @Assert\NotBlank(groups={"put-reset-password"})
      * @Assert\Regex(
-     *       pattern="/(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9]).{7,}/",
+     *      pattern="/(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9]).{7,}/",
      *      message="Password must be seven characters long and contain at least one digit, one upper case letter and one lower case letter",
      *      groups={"put-reset-password"}
      * )
@@ -136,41 +168,77 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"get", "post", "put", "get-comment-with-author", "get-blog-post-with-author"})
+     * @Groups({
+     *      "get", 
+     *      "post", 
+     *      "put", 
+     *      "get-comment-with-author", 
+     *      "get-blog-post-with-author"
+     * })
      * @Assert\NotBlank(groups={"post"})
      * @Assert\Length(min=5, max=255, groups={"post", "put"})
      */
     private $name;
 
     /**
-     * @ORM\Column(type="string", length=255)
-     * @Groups({"post", "put", "get-admin", "get-owner"})
+     * @ORM\Column(type="string", length=255, unique=true)
+     * @Groups({
+     *      "post", 
+     *      "put", 
+     *      "get-admin", 
+     *      "get-owner"
+     * })
      * @Assert\NotBlank(groups={"post"})
-     * @Assert\Email(groups={"post", "put"})
-     * @Assert\Length(min=6, max=255, groups={"post", "put"})
+     * @Assert\Email(groups={
+     *      "post", 
+     *      "put"
+     * })
+     * @Assert\Length(
+     *      min=6, 
+     *      max=255, 
+     *      groups={
+     *           "post", 
+     *           "put"
+     *      }
+     * )
      */
     private $email;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\BlogPost", mappedBy="author")
+     * @ORM\OneToMany(
+     *      targetEntity="App\Entity\BlogPost", 
+     *      mappedBy="author"
+     * )
      * @Groups({"get"})
      */
     private $posts;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Comment", mappedBy="author")
+     * @ORM\OneToMany(
+     *      targetEntity="App\Entity\Comment", 
+     *      mappedBy="author"
+     * )
      * @Groups({"get"})
      */
     private $comments;
 
     /**
-     * @ORM\Column(type="simple_array", length=200)
-     * @Groups({"get-admin", "get-owner"})
+     * @ORM\Column(
+     *      type="simple_array", 
+     *      length=200
+     * )
+     * @Groups({
+     *      "get-admin", 
+     *      "get-owner"}
+     * )
      */
     private $roles;
 
     /**
-     * @ORM\Column(type="integer", nullable=true)
+     * @ORM\Column(
+     *      type="integer", 
+     *      nullable=true
+     * )
      */
     private $passwordChangeDate;
 
@@ -180,7 +248,11 @@ class User implements UserInterface
     private $enabled;
 
     /**
-     * @ORM\Column(type="string", length=40, nullable=true)
+     * @ORM\Column(
+     *      type="string", 
+     *      length=40, 
+     *      nullable=true
+     * )
      */
     private $confirmationToken;
 
@@ -195,7 +267,6 @@ class User implements UserInterface
 
     public function __toString(): string
     {
-        // return (string) $this->getId();
         return $this->name;
     }
 

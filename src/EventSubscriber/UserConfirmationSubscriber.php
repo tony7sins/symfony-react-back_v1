@@ -10,6 +10,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\GetResponseForControllerResultEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
+use Symfony\Component\HttpKernel\Event\ViewEvent;
 
 class UserConfirmationSubscriber implements EventSubscriberInterface
 {
@@ -34,7 +35,7 @@ class UserConfirmationSubscriber implements EventSubscriberInterface
         ];
     }
 
-    public function confirmUser(GetResponseForControllerResultEvent $event)
+    public function confirmUser(ViewEvent $event)
     {
         $request = $event->getRequest();
 

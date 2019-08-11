@@ -34,5 +34,10 @@ services:
         arguments: ['@security.token_storage']
         tags:
             - { name: 'serializer.normalizer', priority: 64 }
+            
+    # Test registration of event_subscriber (didn't help)
+    # App\EventSubscriber\EmptyBodySubscriber:
+    #     tags:
+    #         - { name: kernel.event_subsciber, event: kernel.request, priority: 65 }
 
         

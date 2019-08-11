@@ -11,6 +11,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\GetResponseForControllerResultEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use Symfony\Component\HttpKernel\Event\ViewEvent;
 
 class UserRegisterSubscriber implements EventSubscriberInterface
 {
@@ -44,7 +45,7 @@ class UserRegisterSubscriber implements EventSubscriberInterface
         ];
     }
 
-    public function userRegistered(GetResponseForControllerResultEvent $event)
+    public function userRegistered(ViewEvent $event)
     {
         $user = $event->getControllerResult();
         $method = $event->getRequest()

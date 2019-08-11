@@ -1,0 +1,12 @@
+# App\Entity\User:
+#         constraints:
+#             - Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity: [ user.email, user.username ]
+#         properties:
+#             email:
+#             - Email: ~
+
+
+        #     - Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity:
+        #         fields: [ mail, username ]
+        #         # errorPath: port
+        #         message: 'Этот порт уже используется на данном хосте.'
