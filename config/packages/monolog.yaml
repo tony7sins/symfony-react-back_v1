@@ -1,0 +1,2 @@
+monolog:
+    channel: ['token_confirmation']

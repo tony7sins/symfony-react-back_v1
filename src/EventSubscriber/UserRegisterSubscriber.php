@@ -41,7 +41,10 @@ class UserRegisterSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            KernelEvents::VIEW => ['userRegistered', EventPriorities::PRE_WRITE],
+            KernelEvents::VIEW => [
+                'userRegistered',
+                EventPriorities::PRE_WRITE
+            ],
         ];
     }
 
