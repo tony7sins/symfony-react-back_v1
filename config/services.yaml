@@ -40,4 +40,8 @@ services:
     #     tags:
     #         - { name: kernel.event_subsciber, event: kernel.request, priority: 65 }
 
+    App\Security\UserConfirmationService:
+        arguments:
+            $logger: '@monolog.logger.token_confirmation'
+
         
