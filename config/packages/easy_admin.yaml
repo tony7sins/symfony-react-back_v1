@@ -7,6 +7,14 @@ easy_admin:
             class: App\Entity\Comment
         Image:
             class: App\Entity\Image
+            list:
+                fields:
+                    - id
+                    - { property: 'url', type: 'image', label: 'Image' }
+
+            form:
+                fields:
+                    - { property: 'file', type: 'Vich\UploaderBundle\Form\Type\VichFileType'}
         User:
             controller: App\Controller\UserAdminController
             class: App\Entity\User
