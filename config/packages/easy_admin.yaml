@@ -1,5 +1,5 @@
 easy_admin:
-    site_name: 'API project <em style="font-size: 80%;">Megacorp.</em>'
+    site_name: 'API project <br><em style="font-size: 80%;">Megacorp.</em>'
     entities:
         BlogPost:
             class: App\Entity\BlogPost
@@ -8,6 +8,7 @@ easy_admin:
         Image:
             class: App\Entity\Image
         User:
+            controller: App\Controller\UserAdminController
             class: App\Entity\User
         # List the entity class name you want to manage
         # - App\Entity\BlogPost
