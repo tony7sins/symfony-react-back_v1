@@ -27,8 +27,3 @@ easy_admin:
         User:
             controller: App\Controller\UserAdminController
             class: App\Entity\User
-        # List the entity class name you want to manage
-        # - App\Entity\BlogPost
-        # - App\Entity\Comment
-        # - App\Entity\Image
-        # - App\Entity\User
