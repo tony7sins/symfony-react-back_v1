@@ -16,7 +16,10 @@ class EmptyBodySubscriber implements EventSubscriberInterface
         return [
             KernelEvents::REQUEST =>  [
                 'handleEmptyBody',
-                EventPriorities::PRE_VALIDATE
+                EventPriorities::PRE_WRITE
+                // EventPriorities::PRE_VALIDATE
+                // EventPriorities::POST_DESERIALIZE
+                // EventPriorities::PRE_DESERIALIZE
             ]
         ];
     }

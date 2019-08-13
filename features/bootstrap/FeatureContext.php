@@ -1,48 +1,108 @@
 <?php
 
-use Behat\Behat\Context\Context;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\KernelInterface;
+// use Behat\Behat\Definition\Call\Given;
+use Behat\Gherkin\Node\PyStringNode;
 
-/**
- * This context class contains the definitions of the steps used by the demo
- * feature file. Learn how to get started with Behat and BDD on Behat's website.
- *
- * @see http://behat.org/en/latest/quick_start.html
- */
-class FeatureContext implements Context
+class FeatureContext extends \Behatch\Context\RestContext
 {
-    /**
-     * @var KernelInterface
-     */
-    private $kernel;
-
-    /**
-     * @var Response|null
-     */
-    private $response;
-
-    public function __construct(KernelInterface $kernel)
-    {
-        $this->kernel = $kernel;
-    }
-
-    /**
-     * @When a demo scenario sends a request to :path
-     */
-    public function aDemoScenarioSendsARequestTo(string $path)
-    {
-        $this->response = $this->kernel->handle(Request::create($path, 'GET'));
-    }
-
-    /**
-     * @Then the response should be received
-     */
-    public function theResponseShouldBeReceived()
-    {
-        if ($this->response === null) {
-            throw new \RuntimeException('No response received');
+    const USERS = [
+        "admin" => "secret123#"
+    ];
+    const AUTH_URL = '/api/login_check';
+    const AUTH_JSON = '
+        {
+            "username": "%s",
+            "password": "%s"
         }
+    ';
+
+    /**
+     * @var \App\DataFixtures\AppFixtures
+     */
+    private $fixtures;
+
+    /**
+     * @var \Coduo\PHPMatcher\Matcher
+     */
+    private $matcher;
+    /**
+     * @var \Doctrine\ORM\EntityManagerInterface
+     */
+    private $em;
+
+    public function __construct(
+        \Behatch\HttpCall\Request $request,
+        \App\DataFixtures\AppFixtures $fixtures,
+        \Doctrine\ORM\EntityManagerInterface $em
+    ) {
+        parent::__construct($request);
+        $this->fixtures = $fixtures;
+        $this->matcher = (new \Coduo\PHPMatcher\Factory\SimpleFactory())->createMatcher();
+        $this->em = $em;
+    }
+
+    /**
+     * @Given I am authenticated as :user
+     */
+    public function iAmAuthenticatedAs($user)
+    {
+        $this->request->setHttpHeader('Content-Type', 'application/ld+json');
+        $this->request->send(
+            'POST',
+            $this->locatePath(self::AUTH_URL),
+            [],
+            [],
+            sprintf(self::AUTH_JSON, $user, self::USERS[$user])
+        );
+
+        $json = json_decode($this->request->getContent(), true);
+        // Make sure the token was returned
+        $this->assertTrue(isset($json['token']));
+
+        $token = $json['token'];
+
+        $this->request->setHttpHeader(
+            'Authorization',
+            'Bearer ' . $token
+        );
+    }
+
+    /**
+     * @Then the JSON matches expected template:
+     */
+    public function theJsonMatchesExpectedTemplate(PyStringNode $json)
+    {
+        $actual = $this->request->getContent();
+        var_dump($actual);
+        $this->assertTrue(
+            $this->matcher->match($actual, $json->getRaw())
+        );
+    }
+
+    /**
+     * @BeforeScenario @createSchema
+     */
+    public function createSchema()
+    {
+        // Get entity metadata
+        $classes = $this->em->getMetadataFactory()
+            ->getAllMetadata();
+
+        // Drop and create schema
+        $schemaTool = new \Doctrine\ORM\Tools\SchemaTool($this->em);
+        $schemaTool->dropSchema($classes);
+        $schemaTool->createSchema($classes);
+
+        // Load fixtures... and execute
+        $purger = new \Doctrine\Common\DataFixtures\Purger\ORMPurger($this->em);
+        $fixturesExecutor =
+            new \Doctrine\Common\DataFixtures\Executor\ORMExecutor(
+                $this->em,
+                $purger
+            );
+
+        $fixturesExecutor->execute([
+            $this->fixtures
+        ]);
     }
 }

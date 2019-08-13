@@ -112,7 +112,7 @@ class AppFixtures extends Fixture
             if (!$userFixture['enabled']) {
 
                 $user->setConfirmationToken(
-                    $this->tokenGenerator->getRundomSecureToken()
+                    $this->tokenGenerator->getRandomSecureToken()
                 );
             }
 
@@ -132,7 +132,7 @@ class AppFixtures extends Fixture
                 ->setTitle($this->faker->realText(30))
                 ->setPublished($this->faker->dateTimeThisYear)
                 ->setContent($this->faker->realText)
-                ->setAuthor($this->getRundomUserReference($blogPost))
+                ->setAuthor($this->getRandomUserReference($blogPost))
                 ->setSlug($this->faker->slug);
 
             $this->setReference("blog_post_{$i}", $blogPost);
@@ -152,7 +152,7 @@ class AppFixtures extends Fixture
                 $comment
                     ->setContent($this->faker->realText())
                     ->setPublished($this->faker->dateTimeThisYear)
-                    ->setAuthor($this->getRundomUserReference($comment))
+                    ->setAuthor($this->getRandomUserReference($comment))
                     ->setBlogPost($this->getReference("blog_post_{$i}"));
 
                 $manager->persist($comment);
@@ -162,7 +162,7 @@ class AppFixtures extends Fixture
         $manager->flush();
     }
 
-    private function getRundomUserReference($entity): User
+    private function getRandomUserReference($entity): User
     {
 
         $randomUser = self::USERS[rand(0, 5)];
@@ -171,14 +171,14 @@ class AppFixtures extends Fixture
             $randomUser['roles'],
             [User::ROLE_SUPERADMIN, User::ROLE_ADMIN, User::ROLE_WRITER]
         ))) {
-            return $this->getRundomUserReference($entity);
+            return $this->getRandomUserReference($entity);
         }
 
         if ($entity instanceof Comment && !count(array_intersect(
             $randomUser['roles'],
             [User::ROLE_SUPERADMIN, User::ROLE_ADMIN, User::ROLE_WRITER, User::ROLE_COMMENTATOR]
         ))) {
-            return $this->getRundomUserReference($entity);
+            return $this->getRandomUserReference($entity);
         }
 
         return $this->getReference("user_" . $randomUser['username']);
