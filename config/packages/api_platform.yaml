@@ -1,5 +1,8 @@
 api_platform:
 
+    # enable_swagger_ui: ~
+    # enable_re_doc: ~
+
     mapping:
         paths: ['%kernel.project_dir%/src/Entity']
         
@@ -14,7 +17,7 @@ api_platform:
 
             client_enabled: true
             enabled_parameter_name: pagination
-            items_per_page: 20 # 30 Default value
+            items_per_page: 50 # 30 Default value
             client_items_per_page: true # Disabled by default
             items_per_page_parameter_name: itemsPerPage # Default value
             
@@ -29,10 +32,10 @@ api_platform:
         jsonhal:  ['application/hal+json']
         jsonapi:  ['application/vnd.api+json']
         json:     ['application/json']
-        # xml:      ['application/xml', 'text/xml']
+        xml:      ['application/xml', 'text/xml']
         # yaml:     ['application/x-yaml']
         # csv:      ['text/csv']
-        # html:     ['text/html']
+        html:     ['text/html']
 
     exception_to_status:
         App\Exception\EmptyBodyException: 'HTTP_BAD_REQUEST'
