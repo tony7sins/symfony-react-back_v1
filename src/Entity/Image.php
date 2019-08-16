@@ -14,7 +14,12 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
  * @Vich\Uploadable( )
  * @ApiResource(
  *      attributes={
- *          "order"={" id": "ASC"}
+ *          "order"={" id": "ASC"},
+ *          "formats"={
+ *              "json", 
+ *              "jsonld", 
+ *              "form"={"multipart/form-data"}
+ *          }
  *      },
  *      collectionOperations={
  *          "get",
