@@ -62,12 +62,12 @@ use App\Controller\ResetPasswordAction;
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
  * @UniqueEntity(
  *      fields={"username"}, 
- *      groups={"post"}, 
+ *      groups={"post", "put"}, 
  *      message="The {{ value }} is repiated."
  * )
  * @UniqueEntity(
  *      fields={"email"}, 
- *      groups={"post"}, 
+ *      groups={"post", "put"}, 
  *      message="The {{ value }} is already using."
  * )
  */
@@ -88,7 +88,8 @@ class User implements UserInterface
      * @ORM\Column(type="integer")
      * @Groups({
      *      "get",
-     *      "get-blog-post-with-author"
+     *      "get-blog-post-with-author",
+     *      "get-comment-with-author"
      * })
      */
     private $id;
