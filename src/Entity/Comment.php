@@ -19,18 +19,33 @@ use Symfony\Component\Validator\Constraints as Assert;
  *      itemOperations={
  *         "get",
  *         "put"={
- *             "access_control"="is_granted('ROLE_EDITOR') or (is_granted('ROLE_COMMENTATOR') and object.getAuthor() == user)"
+ *             "access_control"="
+ *                  is_granted('ROLE_EDITOR') or 
+ *                  (
+ *                      is_granted('ROLE_COMMENTATOR') and 
+ *                      object.getAuthor() == user
+ *                  )
+ *              "
  *         }
  *     },
  *     collectionOperations={
- *         "get",
- *         "post"={
- *             "access_control"="is_granted('ROLE_COMMENTATOR')"
- *         },
+ *          "get",
+ *          "post"={
+ *              "access_control"="is_granted('ROLE_COMMENTATOR')",
+ *              "normalization_context"={
+ *                 "groups"={"get-comment-with-author"}
+ *              }
+ *          }
  *      },
  *      subresourceOperations={
  *         "api_blog_posts_comments_get_subresource"={
  *             "method"="GET",
+ *             "normalization_context"={
+ *                 "groups"={"get-comment-with-author"}
+ *             }
+ *         },
+ *          "post"={
+ *             "method"="POST",
  *             "normalization_context"={
  *                 "groups"={"get-comment-with-author"}
  *             }
