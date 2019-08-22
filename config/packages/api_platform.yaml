@@ -17,11 +17,11 @@ api_platform:
 
             client_enabled: true
             enabled_parameter_name: pagination
-            items_per_page: 50 # 30 Default value
+            items_per_page: 10 # 30 Default value
             client_items_per_page: true # Disabled by default
             items_per_page_parameter_name: itemsPerPage # Default value
             
-            maximum_items_per_page: 50
+            maximum_items_per_page: 10
 
             # partial: true # Disabled by default
             client_partial: true # Disabled by default
